@@ -23,6 +23,11 @@ const serverlessConfiguration: AWS = {
         environment: {
             AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
             NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
+            DB_USERNAME: process.env.DB_USERNAME,
+            DB_PASSWORD: process.env.DB_PASSWORD,
+            DB_PORT: process.env.DB_PORT,
+            DB_HOST: process.env.DB_HOST,
+            DB_NAME: process.env.DB_NAME,
         },
     },
     functions: {

@@ -10,10 +10,19 @@ module.exports = (async options => {
   //   '@nestjs/websockets/socket-module',
   // ];
 
+  const entities = {
+    'src/database/entities/cart-items.entity':
+      './src/database/entities/cart-items.entity.ts',
+    'src/database/entities/carts.entity':
+      './src/database/entities/carts.entity.ts',
+    'src/database/entities/orders.entity':
+      './src/database/entities/orders.entity.ts',
+  };
+
   return {
     mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
     devtool: slsw.lib.webpack.isLocal ? 'inline-cheap-source-map' : undefined,
-    entry: slsw.lib.entries,
+    entry: { ...slsw.lib.entries, ...entities },
     output: {
       libraryTarget: 'commonjs2',
       path: path.join(__dirname, '.webpack'),
