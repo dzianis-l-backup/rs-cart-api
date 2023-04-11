@@ -5,24 +5,30 @@ const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = (async options => {
-  // const lazyImports = [
-  //   '@nestjs/microservices/microservices-module',
-  //   '@nestjs/websockets/socket-module',
-  // ];
+  const lazyImports = [
+    '@nestjs/microservices/microservices-module',
+    '@nestjs/websockets/socket-module',
+    '@nestjs/microservices',
+    'cache-manager',
+    'class-validator',
+    'class-transformer',
+    'pg',
+    'pg-native',
+  ];
 
-  const entities = {
-    'src/database/entities/cart-items.entity':
-      './src/database/entities/cart-items.entity.ts',
-    'src/database/entities/carts.entity':
-      './src/database/entities/carts.entity.ts',
-    'src/database/entities/orders.entity':
-      './src/database/entities/orders.entity.ts',
-  };
+  // const entities = {
+  //   'src/database/entities/cart-items.entity':
+  //     './src/database/entities/cart-items.entity.ts',
+  //   'src/database/entities/carts.entity':
+  //     './src/database/entities/carts.entity.ts',
+  //   'src/database/entities/orders.entity':
+  //     './src/database/entities/orders.entity.ts',
+  // };
 
   return {
-    mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
-    devtool: slsw.lib.webpack.isLocal ? 'inline-cheap-source-map' : undefined,
-    entry: { ...slsw.lib.entries, ...entities },
+    mode: 'development',
+    devtool: 'inline-cheap-source-map',
+    entry: slsw.lib.entries,
     output: {
       libraryTarget: 'commonjs2',
       path: path.join(__dirname, '.webpack'),
@@ -30,21 +36,21 @@ module.exports = (async options => {
       clean: true,
     },
 
-    // plugins: [
-    //   ...(options?.plugins || []),
-    //   new webpack.IgnorePlugin({
-    //     checkResource(resource) {
-    //       if (lazyImports.includes(resource)) {
-    //         try {
-    //           require.resolve(resource);
-    //         } catch (err) {
-    //           return true;
-    //         }
-    //       }
-    //       return false;
-    //     },
-    //   }),
-    // ],
+    plugins: [
+      ...(options?.plugins || []),
+      new webpack.IgnorePlugin({
+        checkResource(resource) {
+          if (lazyImports.includes(resource)) {
+            try {
+              require.resolve(resource);
+            } catch (err) {
+              return true;
+            }
+          }
+          return false;
+        },
+      }),
+    ],
 
     target: 'node',
     module: {

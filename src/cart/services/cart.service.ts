@@ -15,19 +15,19 @@ export class CartService {
 
   private userCarts: Record<string, Cart> = {};
 
-  async findByUserId(
-    userId: string = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  ): Promise<Carts | undefined> {
-    // return this.userCarts[userId];
-    debugger;
+  async findByUserId(userId: string): Promise<Carts | undefined> {
     console.log('findByUserId', 'userId', userId);
     console.log('findByUserId', 'this.cartsRepository', this.cartsRepository);
     console.log('findByUserId', 'Carts', Carts);
 
-    const [carts] =
-      (await this.cartsRepository.findBy({
-        id: userId,
-      })) || [];
+    const carts = await this.cartsRepository.findOne({
+      where: {
+        userId,
+      },
+      relations: ['cartItems'],
+    });
+
+    console.log('findByUserId', '[carts]', carts);
 
     return carts;
   }
