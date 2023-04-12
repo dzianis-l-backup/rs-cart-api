@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 
 import { Carts, Status } from '../../database/entities/carts.entity';
 import { v4 } from 'uuid';
-import { Cart } from '../models';
-import { CartItems } from 'src/database/entities/cart-items.entity';
+import { Cart, CartItem } from '../models';
+import { CartItems } from '../../database/entities/cart-items.entity';
 import { findIndex } from 'rxjs';
 
 @Injectable()
@@ -13,6 +13,8 @@ export class CartService {
   constructor(
     @InjectRepository(Carts)
     private readonly cartsRepository: Repository<Carts>,
+    @InjectRepository(CartItems)
+    private readonly cartItemsRepository: Repository<CartItems>,
   ) {}
 
   private userCarts: Record<string, Cart> = {};
@@ -71,18 +73,29 @@ export class CartService {
     { cartItems: cartItemsUpdated }: { cartItems: CartItems },
   ): Promise<Carts> {
     const { id, cartItems, ...rest } = await this.findOrCreateByUserId(userId);
-
+    let cartItemsUpdatedEffective = {
+      ...cartItemsUpdated,
+      count: cartItemsUpdated.count >= 0 ? cartItemsUpdated.count : 0,
+      cartId: id,
+      price: 1,
+    };
     let cartItemsNext = cartItems;
 
     const cartItemIndex = cartItems.findIndex(
-      cartItems => cartItems.productId === cartItemsUpdated.productId,
+      cartItems => cartItems.productId === cartItemsUpdatedEffective.productId,
     );
 
     if (cartItemIndex >= 0) {
-      cartItemsNext.splice(cartItemIndex, 1, cartItemsUpdated);
+      cartItemsUpdatedEffective = {
+        ...cartItemsUpdatedEffective,
+        id: cartItemsNext[cartItemIndex].id,
+      };
+
+      cartItemsNext.splice(cartItemIndex, 1, cartItemsUpdatedEffective);
+
       console.log('cartItemsNext', cartItemsNext);
     } else {
-      cartItemsNext.push(cartItemsUpdated);
+      cartItemsNext.push(cartItemsUpdatedEffective);
       console.log('cartItemsNext', cartItemsNext);
     }
 
@@ -95,7 +108,27 @@ export class CartService {
 
     console.log('save', updatedCart);
 
+    // const carts = await this.cartsRepository.upsert(updatedCart, {
+    //   upsertType: 'on-conflict-do-update',
+    //   conflictPaths: {
+    //     id: true,
+    //     userId: true,
+    //     createdAt: true,
+    //     updatedAt: true,
+    //     status: true,
+    //   },
+    // });
+
     await this.cartsRepository.save(updatedCart);
+
+    if (!cartItemsUpdatedEffective.count) {
+      console.log(
+        'delete',
+        'cartItemsUpdatedEffective.id',
+        cartItemsUpdatedEffective.id,
+      );
+      await this.cartItemsRepository.delete(cartItemsUpdatedEffective.id);
+    }
 
     return { ...updatedCart };
   }

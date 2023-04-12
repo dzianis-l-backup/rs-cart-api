@@ -34,7 +34,8 @@ export class Carts {
   @OneToMany(
     () => CartItems,
     cartItems => cartItems.cart,
+    { cascade: ['insert', 'update', 'remove', 'soft-remove'] },
   )
-  @JoinColumn({ name: 'id', referencedColumnName: 'cart_id' })
+  // @JoinColumn({ name: 'id', referencedColumnName: 'cart_id' })
   cartItems: CartItems[];
 }

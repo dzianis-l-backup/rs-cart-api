@@ -20,7 +20,7 @@ import { Carts } from './entities/carts.entity';
        * Flag to show all generated sql queries on each interaction with DB.
        * Should be omitted for production production.
        */
-      logging: false,
+      logging: true,
       /**
        * This naming strategy will map field_name from database to fieldName inside application.
        */
