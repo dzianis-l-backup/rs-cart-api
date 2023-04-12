@@ -35,6 +35,6 @@ export class Carts {
     () => CartItems,
     cartItems => cartItems.cart,
   )
-  @JoinColumn({name: 'id', referencedColumnName: 'cart_id'})
+  @JoinColumn({ name: 'id', referencedColumnName: 'cart_id' })
   cartItems: CartItems[];
 }

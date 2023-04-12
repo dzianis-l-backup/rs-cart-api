@@ -7,8 +7,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 let server: Handler;
 
 async function bootstrap(): Promise<Handler> {
-  const app = await NestFactory.create(AppModule, { cors: true });
-  app.enableCors();
+  const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   await app.init();
 
   const config = new DocumentBuilder()
@@ -21,6 +25,7 @@ async function bootstrap(): Promise<Handler> {
   SwaggerModule.setup('swagger', app, document);
 
   const expressApp = app.getHttpAdapter().getInstance();
+
   return serverlessExpress({ app: expressApp });
 }
 

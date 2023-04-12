@@ -10,10 +10,10 @@ export class Orders {
   userId: string;
 
   @Column({ type: 'uuid' })
-  cart_id: string;
+  cartId: string;
 
   @OneToOne(() => Carts)
-  @JoinColumn({ name: 'cart_id', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'cartId', referencedColumnName: 'id' })
   carts: Carts;
 
   @Column({ type: 'json' })

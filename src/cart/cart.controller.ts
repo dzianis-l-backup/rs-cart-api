@@ -28,12 +28,11 @@ export class CartController {
   // @UseGuards(BasicAuthGuard)
   @Get()
   async findUserCart(@Req() req: AppRequest) {
-    console.log('api/profile/cart', 'request', req);
     const cart = await this.cartService.findOrCreateByUserId(
       getUserIdFromRequest(req),
     );
 
-    console.log('api/profile/cart', 'resopnse');
+    console.log('api/profile/cart', 'response');
 
     return {
       statusCode: HttpStatus.OK,
@@ -47,6 +46,7 @@ export class CartController {
   @Put()
   async updateUserCart(@Req() req: AppRequest, @Body() body) {
     // TODO: validate body payload...
+    console.log('updateUserCart', 'body', body);
     const cart = await this.cartService.updateByUserId(
       getUserIdFromRequest(req),
       body,
