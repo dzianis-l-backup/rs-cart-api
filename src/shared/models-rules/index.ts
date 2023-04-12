@@ -6,5 +6,5 @@ const USER_MOCK = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
  * @returns {string}
  */
 export function getUserIdFromRequest(request?: AppRequest): string {
-  return (request.user && request.user.id) || USER_MOCK;
+  return (request?.user && request.user.id) || USER_MOCK;
 }

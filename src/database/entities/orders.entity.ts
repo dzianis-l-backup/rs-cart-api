@@ -13,7 +13,7 @@ export class Orders {
   cartId: string;
 
   @OneToOne(() => Carts)
-  // @JoinColumn({ name: 'cart_id', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'cart_id', referencedColumnName: 'id' })
   carts: Carts;
 
   @Column({ type: 'json' })
