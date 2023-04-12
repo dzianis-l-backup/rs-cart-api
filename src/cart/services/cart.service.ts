@@ -20,10 +20,6 @@ export class CartService {
   private userCarts: Record<string, Cart> = {};
 
   async findByUserId(userId: string): Promise<Carts | undefined> {
-    console.log('findByUserId', 'userId', userId);
-    console.log('findByUserId', 'this.cartsRepository', this.cartsRepository);
-    console.log('findByUserId', 'Carts', Carts);
-
     const carts = await this.cartsRepository.findOne({
       where: {
         userId,
@@ -38,8 +34,6 @@ export class CartService {
   }
 
   async createByUserId(userId: string): Promise<Carts> {
-    const id = v4(v4());
-
     const carts = {
       userId,
       createdAt: new Date().toISOString(),
@@ -50,8 +44,7 @@ export class CartService {
 
     console.log('createByUserId', 'carts', carts);
 
-    const result = await this.cartsRepository.insert(carts);
-    console.log('createByUserId', 'result', result);
+    await this.cartsRepository.insert(carts);
 
     return carts;
   }
@@ -92,11 +85,8 @@ export class CartService {
       };
 
       cartItemsNext.splice(cartItemIndex, 1, cartItemsUpdatedEffective);
-
-      console.log('cartItemsNext', cartItemsNext);
     } else {
       cartItemsNext.push(cartItemsUpdatedEffective);
-      console.log('cartItemsNext', cartItemsNext);
     }
 
     const updatedCart = {
@@ -106,7 +96,7 @@ export class CartService {
       cartItems: cartItemsNext,
     };
 
-    console.log('save', updatedCart);
+    console.log('save(updatedCart)', updatedCart);
 
     // const carts = await this.cartsRepository.upsert(updatedCart, {
     //   upsertType: 'on-conflict-do-update',

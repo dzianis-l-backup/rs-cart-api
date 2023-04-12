@@ -1,39 +1,66 @@
-import { Injectable } from '@nestjs/common';
-import { v4 } from 'uuid';
+import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { Order } from '../models';
+import { Orders } from '../../database/entities/orders.entity';
+import { Carts, Status } from '../../database/entities/carts.entity';
+// import { CartService } from '../../cart/services/cart.service';
+import { getUserIdFromRequest } from '../../shared/models-rules';
 
 @Injectable()
 export class OrderService {
-  private orders: Record<string, Order> = {}
+  constructor(
+    @InjectRepository(Orders)
+    private readonly ordersRepository: Repository<Orders>,
+    @InjectRepository(Carts)
+    private readonly cartsRepository: Repository<Carts>,
+  ) {}
 
-  findById(orderId: string): Order {
-    return this.orders[ orderId ];
+  private async findById(orderId: string): Promise<Orders> {
+    return await this.ordersRepository.findOne({
+      where: {
+        id: orderId,
+      },
+      relations: ['carts'],
+    });
   }
 
-  create(data: any) {
-    const id = v4(v4())
+  async create(data: Orders) {
+    const userId = getUserIdFromRequest();
+    // const carts = await this.cartService.findOrCreateByUserId(userId);
+
+    // carts.status = Status.Ordered;
+    // await this.cartsRepository.save(carts);
+
     const order = {
-      ...data,
-      id,
-      status: 'inProgress',
+      userId,
+      // cartId: carts.id,
+      payment: { comment: 'all paid' },
+      delivery: {},
+      status: 'created',
+      total: -1,
     };
 
-    this.orders[ id ] = order;
+    await this.ordersRepository.insert(order);
 
     return order;
   }
 
-  update(orderId, data) {
-    const order = this.findById(orderId);
-
-    if (!order) {
-      throw new Error('Order does not exist.');
+  async update(orders: Orders) {
+    if (!orders.id) {
+      throw new Error('update failed: no orderId');
     }
 
-    this.orders[ orderId ] = {
-      ...data,
-      id: orderId,
-    }
+    await this.ordersRepository.save(await this.findById(orders.id));
+  }
+
+  async getAll() {
+    const userId = getUserIdFromRequest();
+
+    return await this.ordersRepository.find({
+      where: {
+        userId,
+      },
+    });
   }
 }
